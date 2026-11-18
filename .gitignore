@@ -1,0 +1,23 @@
+# Private or third-party material: never publish
+sources/
+incoming/
+ideas/
+*.pptx
+*.docx
+SKILL_*.md
+
+# Derived from private material
+build/
+figures/candidates/
+figures/crops/
+figures/received/
+
+# Working notes (contain unpublished details) — decide before publishing
+docs/
+NEXT.md
+CLAUDE.md
+
+# Environment
+.venv/
+__pycache__/
+.DS_Store
