@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v04"
+VERSION = "v05"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -223,8 +223,10 @@ S = {}   # final slides by key
 # ================================================================ INTRO
 S["title"] = O(1)
 notes(O(1), """
-[0:00, 0.5 min] Thank the committee. Title. One sentence on the plan:
-from errors in nanopore data, to methylation as a signal, to methylation-aware computation.
+[0:00, 0.5 min] Thank the committee. Title. Open with the question, not with own work:
+how do we turn a noisy electrical signal into reliable biological information — and what
+else is hidden in that signal? Plan in one sentence: from errors, to methylation as a
+signal, to methylation-aware computation.
 """)
 S["outbreaks"] = O(2)
 notes(O(2), """
@@ -348,7 +350,7 @@ S["p2023"] = s
 
 s = O(13)
 remove_shapes(s)
-set_title(s, "2024: five labs, same strains, different allele calls")
+set_title(s, "Same strains, five labs: different allele calls")
 add_fig(s, P / "p3_multicenter_jcm2024/img-004.png", 0.3, 0.8, 2.6, 1.3)
 add_fig(s, P / "p3_multicenter_jcm2024/img-007.png", 0.3, 2.15, 6.4, 2.45)
 add_text(s, ["5 labs · 4 species · > 500 datasets",
@@ -412,7 +414,7 @@ S["assembly"] = s
 
 s = O(18)
 remove_shapes(s)
-set_title(s, "2026: ten labs, routine workflows, reproducible typing")
+set_title(s, "Ten labs, routine workflows: reproducible typing")
 add_fig(s, K / "papers/fli_linde_wip/Figure3.png", FL, 0.78, FW, 3.8)
 add_text(s, ["10 labs: veterinary, food, public health",
              "Own routine lab and analysis workflows",
@@ -667,6 +669,7 @@ S["style"] = s
 
 s = O(31)
 remove_shapes(s)
+set_title(s, "Adding methylation: four input channels become seven")
 add_fig(s, K / "val_phd/s18_1_1902x972.png", 0.3, 0.8, 4.4, 2.25)
 add_fig(s, K / "val_phd/s18_2_1902x972.png", 5.0, 0.8, 4.4, 2.25)
 add_text(s, "4 channels: A, C, G, T", 0.3, 3.05, 4.4, 0.3, size=12, color=GREY, align=PP_ALIGN.CENTER)
@@ -842,20 +845,22 @@ S["app_results"] = s
 # remaining spare slides of Martin go to the appendix unchanged
 SPARE = [O(i) for i in (38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50)]
 
-ORDER = ["title", "outbreaks", "mst", "technical", "contrib", "promise",
+ORDER = ["title", "outbreaks", "mst", "technical", "promise",
          "sec1", "howworks", "basecalling", "sim1", "sim2",
          "sec2", "p2024", "motifs", "assembly", "p2026", "alpaqa", "mabs", "twist",
          "sec3", "rm", "calls", "profiles", "ehec",
          "sec4", "question", "style", "seven", "strains", "host", "outlook",
          "lessons", "ack"]
 # slides moved out of the main talk (v04): kept as backup in the appendix
-MOVED = ["p2023", "rawdata", "pipeline", "repro", "unseen"]
+# contrib: habilitation rules ask for a general-interest talk, not an overview of own work;
+# kept as backup for the discussion (which may cover the written habilitation work)
+MOVED = ["contrib", "p2023", "rawdata", "pipeline", "repro", "unseen"]
 APPENDIX = ["app", "app_model", "app_graph", "app_eval", "app_results"] + MOVED
 final = [S[k] for k in ORDER + APPENDIX] + SPARE
 
 # ---------------------------------------------------------------- timing in speaker notes
 # minutes per main slide; notes get "[start, duration]" automatically
-DUR = {"title": .5, "outbreaks": 1, "mst": 1.5, "technical": 1, "contrib": 1.5, "promise": 1.5,
+DUR = {"title": .5, "outbreaks": 1, "mst": 1.5, "technical": 1, "promise": 1.5,
        "sec1": .25, "howworks": 1.5, "basecalling": 1, "sim1": 1.5, "sim2": 1.5,
        "sec2": .25, "p2024": 1.5, "motifs": 1.5, "assembly": 1.5, "p2026": 1.5,
        "alpaqa": 1.5, "mabs": 1.5, "twist": .5,
@@ -876,7 +881,7 @@ for k in MOVED:                                    # relabel part tag as APPENDI
     old = sl.notes_slide.notes_text_frame.text
     sl.notes_slide.notes_text_frame.text = "[Appendix / backup] " + re.sub(r"^\s*\[[^\]]*\]\s*", "", old)
     for sh in sl.shapes:
-        if sh.has_text_frame and sh.text_frame.text.strip().startswith("PART"):
+        if sh.has_text_frame and sh.text_frame.text.strip().startswith(("PART", "INTRO")):
             runs = [r for p_ in sh.text_frame.paragraphs for r in p_.runs]
             if runs:
                 runs[0].text = "APPENDIX"
