@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v03"
+VERSION = "v04"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -355,14 +355,18 @@ add_text(s, ["5 labs · 4 species · > 500 datasets",
              "R10.4.1, same chemistry everywhere",
              ("Errors are strain-specific", {"bold": True}),
              ("… and occur in every lab", {"bold": True}),
-             "Some strains far above the cluster threshold"],
+             "Some strains far above the cluster threshold",
+             ("Before (2023): fine for some species, not for all", {"color": GREY, "size": 12})],
          7.0, TT, 2.8, TH, size=13, bullets=True, space=6)
 takeaway(s, "Same chemistry, same strain: the genotype is not always reproducible.", "II")
-cite(s, "Dabernig-Heinz, Lohde, Hölzer et al. J Clin Microbiol 2024, 62:e00628-24")
+cite(s, "Dabernig-Heinz, Lohde, Hölzer et al. J Clin Microbiol 2024, 62:e00628-24; Linde, Brangsch, Hölzer et al. BMC Genomics 2023")
 notes(s, """
 [14 min, 1.5 min] Multicenter study (Graz, Jena, Greifswald, Vienna, RKI). Each lab
 sequenced the same strains. Plot: allele differences to the Illumina reference, per lab;
 line = cluster threshold. Most strains fine, a few strains wrong in every lab.
+One sentence on the history: our 2023 benchmark with FLI (B. anthracis, Brucella,
+Francisella) already showed that ONT typing worked for some species but not for all
+(details in the appendix).
 """)
 S["p2024"] = s
 
@@ -522,16 +526,22 @@ S["rm"] = s
 
 s = O(23)
 remove_shapes(s)
-set_title(s, "From probabilistic calls to motifs")
-add_fig(s, G / "fig_calls_to_motif.png", 0.3, 0.78, 9.4, 3.75)
+set_title(s, "From probabilistic calls to motifs, automated")
+add_fig(s, G / "fig_calls_to_motif.png", 0.3, 0.9, 6.3, 3.5)
+add_fig(s, ROOT / "figures/received/valentina-workflow.png", 6.75, 0.85, 3.0, 2.0)
+add_text(s, ["ont-methylation: Dorado → alignment → modkit → motifs",
+             ("Nextflow; proposed to nf-core", {"bold": True})],
+         6.8, 2.95, 2.95, 1.4, size=12, bullets=True, space=4)
 takeaway(s, "Choices matter: probability threshold, coverage, partially methylated sites.", "III")
-cite(s, "Schematic (toy data). Threshold 0.7 as in Galeone et al. BMC Genomics 2025")
+cite(s, "Schematic (toy data); threshold 0.7 as in Galeone et al. BMC Genomics 2025. Pipeline: github.com/rki-mf1/ont-methylation")
 notes(s, """
 [26.5 min, 1.5 min] The computational chain. (1) The basecaller reports, per read and per
 base, a probability that the base is modified. (2) We threshold (0.7, from our 2025
 benchmark). (3) Per genome position: fraction of reads called modified. (4) Motif search:
 which short sequences are (almost) always modified? Partial methylation and low coverage
 make steps 2-4 uncertain.
+Right: Valentina's Nextflow pipeline automates exactly this chain (Dorado with modification
+models, alignment, modkit pileup and motif search, reports); proposed to nf-core.
 """)
 S["calls"] = s
 
@@ -555,13 +565,18 @@ S["pipeline"] = s
 
 s = O(25)
 remove_shapes(s)
-add_fig(s, C / "phd_methyl_table.png", 0.3, 0.78, 9.4, 3.8)
-takeaway(s, "Each strain has its own motif set — known and new motifs.", "III")
-cite(s, "Galeone, Dabernig-Heinz, Lohde, Brandt, Kohler, Wagner, Hölzer. BMC Genomics 2025, 26:394")
+set_title(s, "Distinct and reproducible methylation profiles")
+add_fig(s, C / "phd_methyl_table.png", 0.3, 0.78, 5.9, 3.8)
+add_fig(s, P / "p5_methylome_bmc2025/img-003.png", 6.35, 0.78, 3.4, 3.8)
+takeaway(s, "Each strain has its own motif set — and three labs agree on it.", "III")
+cite(s, "Galeone, Dabernig-Heinz, Lohde, Brandt, Kohler, Wagner, Hölzer. BMC Genomics 2025, 26:394 (table: V. Galeone)")
 notes(s, """
 [29 min, 1.5 min] Four public-health species, two isolates each. Blue = methylated base,
 orange = methylated on the opposite strand. Even two isolates of the same species carry
 different motifs (e.g. the two K. pneumoniae). We found known motifs and new ones.
+Right: methylated fraction per motif in three labs — fully methylated motifs agree.
+Mention verbally: the 2026 ten-lab study confirmed this in five labs; differences only for
+partially methylated motifs (figure in the appendix).
 """)
 S["profiles"] = s
 
@@ -589,8 +604,8 @@ add_fig(s, C / "phd_ehec_outbreak.png", 0.3, 0.78, 9.4, 3.8)
 takeaway(s, "The pipeline runs on outbreak genomes, not only on reference strains.", "III")
 cite(s, "Lang, Fruth, Sedaghatjoo, Galeone, Flieger. Microbiol Resour Announc 2026, 15(10):e00231-26; with RKI FG11")
 notes(s, """
-[32 min, 1 min] Back to the first outbreak of the talk. For the 2025 EHEC O45:H2 genomes,
-our pipeline added methylation profiles (here: GATC methylation along the genome).
+Bookend only, no details: back to the first outbreak of the talk — our pipeline added
+methylation profiles to the 2025 EHEC O45:H2 genomes.
 """)
 S["ehec"] = s
 
@@ -829,12 +844,44 @@ SPARE = [O(i) for i in (38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50)]
 
 ORDER = ["title", "outbreaks", "mst", "technical", "contrib", "promise",
          "sec1", "howworks", "basecalling", "sim1", "sim2",
-         "sec2", "p2023", "p2024", "motifs", "assembly", "p2026", "alpaqa", "mabs", "twist",
-         "sec3", "rawdata", "rm", "calls", "pipeline", "profiles", "repro", "ehec",
-         "sec4", "question", "style", "seven", "strains", "unseen", "host", "outlook",
-         "lessons", "ack",
-         "app", "app_model", "app_graph", "app_eval", "app_results"]
-final = [S[k] for k in ORDER] + SPARE
+         "sec2", "p2024", "motifs", "assembly", "p2026", "alpaqa", "mabs", "twist",
+         "sec3", "rm", "calls", "profiles", "ehec",
+         "sec4", "question", "style", "seven", "strains", "host", "outlook",
+         "lessons", "ack"]
+# slides moved out of the main talk (v04): kept as backup in the appendix
+MOVED = ["p2023", "rawdata", "pipeline", "repro", "unseen"]
+APPENDIX = ["app", "app_model", "app_graph", "app_eval", "app_results"] + MOVED
+final = [S[k] for k in ORDER + APPENDIX] + SPARE
+
+# ---------------------------------------------------------------- timing in speaker notes
+# minutes per main slide; notes get "[start, duration]" automatically
+DUR = {"title": .5, "outbreaks": 1, "mst": 1.5, "technical": 1, "contrib": 1.5, "promise": 1.5,
+       "sec1": .25, "howworks": 1.5, "basecalling": 1, "sim1": 1.5, "sim2": 1.5,
+       "sec2": .25, "p2024": 1.5, "motifs": 1.5, "assembly": 1.5, "p2026": 1.5,
+       "alpaqa": 1.5, "mabs": 1.5, "twist": .5,
+       "sec3": .25, "rm": 1.5, "calls": 2, "profiles": 2, "ehec": .5,
+       "sec4": .25, "question": 1.5, "style": 1.5, "seven": 1, "strains": 1.5, "host": 1.5,
+       "outlook": 1, "lessons": 2, "ack": .5}
+import re  # noqa: E402
+t = 0.0
+for k in ORDER:
+    sl = S[k]
+    old = sl.notes_slide.notes_text_frame.text if sl.has_notes_slide else ""
+    body = re.sub(r"^\s*\[[^\]]*\]\s*", "", old)
+    sl.notes_slide.notes_text_frame.text = f"[{t:g} min, {DUR[k]:g} min] " + body
+    t += DUR[k]
+TOTAL_MIN = t
+for k in MOVED:                                    # relabel part tag as APPENDIX
+    sl = S[k]
+    old = sl.notes_slide.notes_text_frame.text
+    sl.notes_slide.notes_text_frame.text = "[Appendix / backup] " + re.sub(r"^\s*\[[^\]]*\]\s*", "", old)
+    for sh in sl.shapes:
+        if sh.has_text_frame and sh.text_frame.text.strip().startswith("PART"):
+            runs = [r for p_ in sh.text_frame.paragraphs for r in p_.runs]
+            if runs:
+                runs[0].text = "APPENDIX"
+                for r in runs[1:]:
+                    r.text = ""
 
 # ---------------------------------------------------------------- reorder / delete
 sldIdLst = prs.slides._sldIdLst
@@ -866,4 +913,5 @@ for n, sl in enumerate(prs.slides, 1):
 OUT.parent.mkdir(exist_ok=True)
 prs.save(OUT)
 print(f"saved {OUT.relative_to(ROOT)}: {len(prs.slides)} slides "
-      f"({len(ORDER) - 5} main incl. sections, {5 + len(SPARE)} appendix)")
+      f"({len(ORDER)} main incl. sections, {len(APPENDIX) + len(SPARE)} appendix); "
+      f"planned talk time {TOTAL_MIN:g} min")

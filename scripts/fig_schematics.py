@@ -92,7 +92,7 @@ ax4.text(0.27, 0.62, "A", fontsize=34, family="Menlo", color=C_ORANGE, weight="b
          transform=ax4.transAxes)
 ax4.text(0.49, 0.62, "T", fontsize=34, family="Menlo", color="#666", transform=ax4.transAxes)
 ax4.text(0.71, 0.62, "C", fontsize=34, family="Menlo", color="#666", transform=ax4.transAxes)
-ax4.text(0.05, 0.47, "6mA at G̲A̲TC", fontsize=12, transform=ax4.transAxes)
+ax4.text(0.05, 0.47, "6mA on the A of GATC", fontsize=12, transform=ax4.transAxes)
 ax4.text(0.05, 0.30, "nearly all GATC sites\nmethylated:\nDam-like MTase", fontsize=11,
          color="#444", transform=ax4.transAxes, va="top")
 fig.savefig(OUT / "fig_calls_to_motif.png", bbox_inches="tight", facecolor="white")
