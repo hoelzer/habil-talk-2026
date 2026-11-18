@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v02"
+VERSION = "v03"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
