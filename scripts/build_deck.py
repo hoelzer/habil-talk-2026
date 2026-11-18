@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v05"
+VERSION = "v06"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -290,9 +290,9 @@ add_text(s, [("Simple model", {"bold": True, "size": 13, "color": ACCENT["I"]}),
              "≈ 5 errors in 2.5 Mb"],
          TL, TT, TW, TH, size=14, space=5)
 takeaway(s, "Outbreak typing needs near-perfect genomes: 99.99% is far from enough.", "I")
-cite(s, "Own simulation (analytical + Monte Carlo); scheme size: EnteroBase E. coli cgMLST. Code: " + REPO)
+cite(s, "Simulation (analytical + Monte Carlo); scheme size: EnteroBase E. coli cgMLST. Code: " + REPO)
 notes(s, """
-[9.5 min, 1.5 min] Own back-of-the-envelope model. Expected false allele differences
+[9.5 min, 1.5 min] A simple back-of-the-envelope model. Expected false allele differences
 E = N * (1 - (1 - e)^(2L)), N = 2,513 loci, L = 1 kb, e = consensus error rate.
 Q40 (99.99%) gives ~450 false differences, Q50 ~50, Q60 ~5. To stay below the EHEC
 threshold of 10, we need about Q57: at most ~5 errors in the whole typed genome.
@@ -317,7 +317,7 @@ notes(s, """
 [11 min, 1.5 min] Why raw read accuracy is the wrong metric: at 50x, a 1% random error
 is outvoted (P ~ 1e-70). But if a modification makes ~half of the reads wrong at the same
 position, the consensus becomes a coin flip — and small changes in read frequency decide
-the allele. This is exactly what we saw in the multicenter study (next part).
+the allele. This is exactly what a multicenter study found (next part).
 """)
 S["sim2"] = s
 
@@ -366,7 +366,7 @@ notes(s, """
 [14 min, 1.5 min] Multicenter study (Graz, Jena, Greifswald, Vienna, RKI). Each lab
 sequenced the same strains. Plot: allele differences to the Illumina reference, per lab;
 line = cluster threshold. Most strains fine, a few strains wrong in every lab.
-One sentence on the history: our 2023 benchmark with FLI (B. anthracis, Brucella,
+One sentence on the history: a 2023 benchmark (FLI Jena; B. anthracis, Brucella,
 Francisella) already showed that ONT typing worked for some species but not for all
 (details in the appendix).
 """)
@@ -445,7 +445,7 @@ notes(s, """
 was never trained on. Bottom: consensus quality drops exactly at the modified motif.
 alpaqa uses these quality dips to flag unreliable assemblies — no reference needed.
 Right: how common such systems are in public genomes (dnd red, dpd purple). Top of the
-list: Mycobacterium abscessus, 22.5% — which brings us to our own example.
+list: Mycobacterium abscessus, 22.5% — which leads to the next example.
 """)
 S["alpaqa"] = s
 
@@ -460,7 +460,8 @@ add_text(s, ["Calls at GGCC change between basecaller models",
 takeaway(s, "What the model has not seen, it calls wrong — but the signal is there.", "II")
 cite(s, "Galeone et al., ongoing; with A. Lewin (RKI). Cf. Biggel et al. bioRxiv 2026")
 notes(s, """
-[21.5 min, 1.5 min] Our own example. In Mycobacterium abscessus, Valentina saw unstable
+[21.5 min, 1.5 min] A concrete case from Valentina Galeone's PhD project: in
+Mycobacterium abscessus she saw unstable
 calls at GGCC: they changed between Dorado models and between native and PCR DNA.
 After Lara Urban's talk it became clear: phosphorothioate, a sulfur instead of an oxygen
 in the backbone. Not in the training data, so the model mislabels it.
@@ -502,8 +503,8 @@ takeaway(s, "Sequences are an interpretation. The raw signal is the measurement.
 cite(s, "Dabernig-Heinz, Galeone, …, Hölzer, Wagner. Sci Data 2025; Cuypers et al. NAR Genom Bioinform 2026 (SquiDBase)")
 notes(s, """
 [24 min, 1 min] Basecalled FASTQ files are shared routinely, raw signal almost never
-(large files, few repositories). We published 1.4 TB of raw signal from the multicenter
-study. Our own later re-analyses and the methylation work depend on it.
+(large files, few repositories). The 1.4 TB of raw signal from the multicenter study is
+public; later re-analyses, including the methylation work, depend on it.
 """)
 S["rawdata"] = s
 
@@ -538,7 +539,7 @@ takeaway(s, "Choices matter: probability threshold, coverage, partially methylat
 cite(s, "Schematic (toy data); threshold 0.7 as in Galeone et al. BMC Genomics 2025. Pipeline: github.com/rki-mf1/ont-methylation")
 notes(s, """
 [26.5 min, 1.5 min] The computational chain. (1) The basecaller reports, per read and per
-base, a probability that the base is modified. (2) We threshold (0.7, from our 2025
+base, a probability that the base is modified. (2) Threshold (0.7, chosen in a 2025
 benchmark). (3) Per genome position: fraction of reads called modified. (4) Motif search:
 which short sequences are (almost) always modified? Partial methylation and low coverage
 make steps 2-4 uncertain.
@@ -575,7 +576,7 @@ cite(s, "Galeone, Dabernig-Heinz, Lohde, Brandt, Kohler, Wagner, Hölzer. BMC Ge
 notes(s, """
 [29 min, 1.5 min] Four public-health species, two isolates each. Blue = methylated base,
 orange = methylated on the opposite strand. Even two isolates of the same species carry
-different motifs (e.g. the two K. pneumoniae). We found known motifs and new ones.
+different motifs (e.g. the two K. pneumoniae). Both known and new motifs appear.
 Right: methylated fraction per motif in three labs — fully methylated motifs agree.
 Mention verbally: the 2026 ten-lab study confirmed this in five labs; differences only for
 partially methylated motifs (figure in the appendix).
@@ -606,7 +607,7 @@ add_fig(s, C / "phd_ehec_outbreak.png", 0.3, 0.78, 9.4, 3.8)
 takeaway(s, "The pipeline runs on outbreak genomes, not only on reference strains.", "III")
 cite(s, "Lang, Fruth, Sedaghatjoo, Galeone, Flieger. Microbiol Resour Announc 2026, 15(10):e00231-26; with RKI FG11")
 notes(s, """
-Bookend only, no details: back to the first outbreak of the talk — our pipeline added
+Bookend only, no details: back to the first outbreak of the talk — the pipeline added
 methylation profiles to the 2025 EHEC O45:H2 genomes.
 """)
 S["ehec"] = s
@@ -624,7 +625,7 @@ add_text(s, [("Metagenome binning (CAMI):", {"bold": True}),
              "98% of genomes recovered …",
              "… but only 23% for strains with ≥ 95% identity",
              ("", {"size": 6}),
-             ("Our strain pairs:", {"bold": True}),
+             ("Closely related strain pairs:", {"bold": True}),
              "97.7–99.6% identical DNA",
              "share only 1–2 methyltransferases"],
          6.3, TT, 3.4, TH, size=13, space=4)
@@ -634,7 +635,7 @@ notes(s, """
 [33.5 min, 1.5 min] Close relatives are the hard case in metagenomics: in CAMI, binners
 recovered 98% of genomes without relatives but only 23% of strains with a close relative.
 Methylation is driven by restriction-modification systems, which are often gained and lost.
-In our strain pairs: almost identical DNA, but only one or two shared methyltransferases.
+In the strain pairs studied: almost identical DNA, but only one or two shared methyltransferases.
 """)
 S["question"] = s
 
@@ -681,9 +682,9 @@ add_text(s, ["Only the first layer changes: 4 → 7 inputs",
          0.6, 3.45, 8.8, 1.1, size=13, bullets=True, space=3)
 cite(s, "Galeone, Akiyama, Sakakibara, Hölzer, in preparation")
 notes(s, """
-[36.5 min, 1 min] Our extension, developed during Valentina's research stay in Japan
+[36.5 min, 1 min] The extension, developed by Valentina Galeone during her research stay in Japan
 (DAAD). Each read becomes a 7 x L matrix. The network is unchanged except for the first
-layer. As a simple, interpretable baseline we count k-mers over a 7-letter alphabet
+layer. A simple, interpretable baseline counts k-mers over a 7-letter alphabet
 (A, C, G, T, 6mA, 4mC, 5mC).
 """)
 S["seven"] = s
@@ -758,7 +759,8 @@ sites matrix is the same object as in haplotype phasing — so ideas from MethPh
 (methylation-assisted phasing of human haplotypes) or minimum-error-correction formulations
 could carry over. Not directly: those methods assume a diploid genome (exactly two
 haplotypes); a metagenome has an unknown number of lineages at unknown abundances.
-Our read clustering is already a simple form of this.
+Clustering reads by their methylation profile, as in the classification work, is already
+a simple form of this.
 """)
 S["outlook"] = s
 
