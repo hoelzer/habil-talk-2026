@@ -25,7 +25,7 @@ from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
 VERSION = "v02"
-REPO = "github.com/hoelzer/habil-talk-2026"   # TODO Martin: final repository URL
+REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
 OUT = ROOT / "build" / f"2026-FU-Habil-Hoelzer-Talk_{VERSION}.pptx"
