@@ -149,4 +149,52 @@ fig.text(0.13, 0.01, "dark: methylated    light grey: unmethylated    white: not
          fontsize=10, color="#555")
 fig.savefig(OUT / "fig_methyl_haplotyping.png", bbox_inches="tight", facecolor="white")
 plt.close(fig)
+
+# ------------------------------------------------------------------ figure C
+# Gram matrix: F (filters x positions) -> G = F F^T (filters x filters).
+# Read 2 has the same local patterns at other positions and a different length:
+# its Gram matrix is identical, because G sums over positions.
+n_f, L1 = 6, 18
+F1 = np.zeros((n_f, L1))
+for f in range(n_f):                                   # sparse filter activations
+    pos = rng.choice(L1, 3, replace=False)
+    F1[f, pos] = rng.uniform(0.4, 1.0, 3)
+F1[1] = F1[0] * 0.8                                    # filters 0 and 1 co-occur
+F1[4] = F1[3] * 0.9                                    # filters 3 and 4 co-occur
+perm = rng.permutation(L1)
+F2 = np.hstack([F1[:, perm], np.zeros((n_f, 6))])      # shuffled + longer read
+G1, G2 = F1 @ F1.T, F2 @ F2.T
+assert np.allclose(G1, G2)
+
+cmF = LinearSegmentedColormap.from_list("f", ["#F4F6F8", C_PURPLE])
+cmG = LinearSegmentedColormap.from_list("g", ["#F4F6F8", C_DARK])
+fig = plt.figure(figsize=(9.5, 4.0))
+gsC = fig.add_gridspec(2, 3, width_ratios=[5.2, 0.9, 2.2], wspace=0.08, hspace=0.55)
+for r, (F, lab) in enumerate([(F1, "read 1"), (F2, "read 2: same patterns elsewhere, longer")]):
+    ax = fig.add_subplot(gsC[r, 0])
+    ax.imshow(F, cmap=cmF, vmin=0, vmax=1, aspect="equal")
+    ax.set_xlim(-0.5, F2.shape[1] - 0.5)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_ylabel("filters", fontsize=14)
+    ax.set_title(f"F ({lab})", loc="left", fontsize=15)
+    if r == 1:
+        ax.set_xlabel("positions along the read", fontsize=14)
+    for s in ax.spines.values():
+        s.set_visible(False)
+axG = fig.add_subplot(gsC[:, 2])
+axG.imshow(G1, cmap=cmG, aspect="equal")
+axG.set_xticks([])
+axG.set_yticks([])
+axG.set_xlabel("filters", fontsize=14)
+axG.set_ylabel("filters", fontsize=14)
+axG.set_title("$G = F\\,F^{\\top}$\nsame for both reads", loc="left", fontsize=15)
+axA = fig.add_subplot(gsC[:, 1])
+axA.axis("off")
+axA.text(0.5, 0.5, "→", fontsize=40, ha="center", va="center", color="#555",
+         transform=axA.transAxes)
+fig.text(0.62, -0.06, r"$G_{ij} = \sum_t F_{it}\, F_{jt}$ : how often filters $i$ and $j$ fire together",
+         fontsize=14, color="#333", ha="center")
+fig.savefig(OUT / "fig_gram_matrix.png", bbox_inches="tight", facecolor="white")
+plt.close(fig)
 print("written to", OUT)

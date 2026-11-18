@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v06"
+VERSION = "v07"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -36,6 +36,7 @@ G = ROOT / "figures/generated"
 C = ROOT / "figures/crops"
 K = ROOT / "figures/candidates"
 P = K / "papers"
+Z = C   # zoom crops from scripts/zooms.py
 
 DATE = "December 2, 2026"
 DARK = RGBColor(0x17, 0x30, 0x47)
@@ -144,6 +145,18 @@ def set_title(slide, text):
             sh.text_frame.text = text
             return sh
     raise ValueError("no title placeholder")
+
+
+def set_title_runs(slide, parts):
+    """Title from (text, italic) parts, e.g. species names in italics."""
+    sh = set_title(slide, parts[0][0])
+    par = sh.text_frame.paragraphs[0]
+    par.runs[0].font.italic = parts[0][1]
+    for text, it in parts[1:]:
+        r = par.add_run()
+        r.text = text
+        r.font.italic = it
+    return sh
 
 
 def set_section(slide, text):
@@ -305,17 +318,23 @@ remove_shapes(s)
 set_title(s, "Random errors average out, systematic errors do not")
 add_fig(s, G / "fig_sim_majority_vote.png", FL, 0.75, FW, 3.85)
 add_text(s, [("Consensus = majority vote", {"bold": True, "size": 13, "color": ACCENT["I"]}),
-             "Random errors vanish with coverage",
-             "Same error in ~50% of reads: a coin flip",
-             "More coverage does not help",
-             ("", {"size": 6}),
-             ("Reads 99% accurate, genome can still be wrong", {"bold": True})],
-         TL, TT, TW, TH, size=14, space=5)
+             ("n reads cover a position;", {"size": 12}),
+             ("X ~ Bin(n, p) of them share a wrong base", {"size": 12}),
+             ("P(wrong) = P(X > n/2)", {"bold": True, "size": 15}),
+             ("", {"size": 4}),
+             "p small: P → 0 as n grows",
+             "p ≈ ½: a coin flip, for any n",
+             ("", {"size": 4}),
+             ("More coverage cannot fix systematic errors", {"bold": True})],
+         TL, TT, TW, TH, size=14, space=4)
 takeaway(s, "Systematic errors decide whether typing is reproducible.", "I")
 cite(s, "Binomial majority vote; worst case: all erroneous reads agree on the same wrong base.")
 notes(s, """
-[11 min, 1.5 min] Why raw read accuracy is the wrong metric: at 50x, a 1% random error
-is outvoted (P ~ 1e-70). But if a modification makes ~half of the reads wrong at the same
+[11 min, 1.5 min] Why raw read accuracy is the wrong metric. The consensus at one position
+is a majority vote: with n reads and a probability p that a read shows the same wrong base,
+the number of wrong reads is binomial, and the consensus is wrong if more than half agree.
+For random errors (p small, and spread over three bases) this vanishes exponentially with
+coverage: at 50x, a 1% error is outvoted (P ~ 1e-70). But if a modification makes ~half of the reads wrong at the same
 position, the consensus becomes a coin flip — and small changes in read frequency decide
 the allele. This is exactly what a multicenter study found (next part).
 """)
@@ -351,13 +370,16 @@ S["p2023"] = s
 s = O(13)
 remove_shapes(s)
 set_title(s, "Same strains, five labs: different allele calls")
-add_fig(s, P / "p3_multicenter_jcm2024/img-004.png", 0.3, 0.8, 2.6, 1.3)
-add_fig(s, P / "p3_multicenter_jcm2024/img-007.png", 0.3, 2.15, 6.4, 2.45)
+add_fig(s, Z / "zoom_jcm_kp.png", 0.3, 0.78, 6.4, 3.35)
+cap = add_text(s, "K. pneumoniae", 0.3, 4.17, 6.5, 0.3, size=10, color=GREY, italic=True)
+r = cap.text_frame.paragraphs[0].add_run()
+r.text = ": allele differences to the reference · one dot per lab · line = cluster threshold"
+r.font.size, r.font.italic, r.font.color.rgb = Pt(10), False, GREY
 add_text(s, ["5 labs · 4 species · > 500 datasets",
              "R10.4.1, same chemistry everywhere",
              ("Errors are strain-specific", {"bold": True}),
              ("… and occur in every lab", {"bold": True}),
-             "Some strains far above the cluster threshold",
+             "Same pattern in L. monocytogenes, S. aureus",
              ("Before (2023): fine for some species, not for all", {"color": GREY, "size": 12})],
          7.0, TT, 2.8, TH, size=13, bullets=True, space=6)
 takeaway(s, "Same chemistry, same strain: the genotype is not always reproducible.", "II")
@@ -392,15 +414,16 @@ S["motifs"] = s
 s = O(16)
 remove_shapes(s)
 set_title(s, "Assembly and polishing are computational choices")
-add_fig(s, P / "p4_assembly_bmc2025/img-003.png", 0.3, 0.8, 4.3, 2.0)
-add_fig(s, P / "p4_assembly_bmc2025/img-005.png", 0.3, 2.85, 4.3, 1.75)
-add_fig(s, P / "p4_assembly_bmc2025/img-007.png", 4.75, 0.8, 2.5, 3.75)
+add_fig(s, P / "p4_assembly_bmc2025/img-003.png", 0.3, 0.78, 6.6, 1.55)
+add_fig(s, Z / "zoom_polish_rows34.png", 0.3, 2.42, 6.6, 2.15)
 add_text(s, [("Perfect genomes are possible", {"bold": True}),
-             "Polishing can add errors",
+             ("Polishing can add errors", {"bold": True}),
+             ("bars: errors removed (light) or added (dark) per polisher; 10 of 20 species",
+              {"size": 11, "color": GREY, "nobullet": True}),
              "Newer model not always better",
              "81% of errors in genes",
              "6.5% caused by methylation"],
-         7.35, TT, 2.45, TH, size=13, bullets=True, space=6)
+         7.1, TT, 2.65, TH, size=13, bullets=True, space=5)
 takeaway(s, "More polishing is not always better: validate every pipeline.", "II")
 cite(s, "Thomas, …, Hölzer, Linde. BMC Genomics 2025, 26:783")
 notes(s, """
@@ -433,14 +456,18 @@ So technology and computation have caught up. What remains?
 S["p2026"] = s
 
 s = new_from(O(18), "97.3% correct: what causes the remaining errors?")
-add_fig(s, C / "alpaqa_fig1.png", 0.3, 0.78, 5.5, 2.55)
-add_fig(s, P / "o_alpaqa_biorxiv2026/img-002.png", 0.3, 3.35, 5.5, 1.25)
-add_fig(s, ROOT / "figures/received/urban-supp3-dnd.png", 5.95, 0.75, 3.8, 3.85)
+add_fig(s, Z / "zoom_alpaqa_salmonella.png", 0.3, 0.78, 4.6, 2.36, align="left")
+add_fig(s, Z / "zoom_alpaqa_qdip.png", 0.3, 3.22, 4.6, 0.62, align="left")
+add_text(s, "Consensus quality drops at the modified motif", 0.3, 3.86, 4.6, 0.3, size=10, color=GREY)
+add_fig(s, Z / "zoom_urban_top10.png", 5.15, 0.78, 4.6, 3.0)
+add_text(s, "Share of public genomes with dnd/dpd systems (top 10 species)", 5.15, 3.86, 4.6, 0.3,
+         size=10, color=GREY)
 takeaway(s, "The remaining errors are not random: they are rare DNA modifications.", "II")
 cite(s, "Biggel, …, Urban. bioRxiv 2026, doi:10.64898/2026.03.20.713089, Fig. 1, 2, Suppl. Fig. S3 (CC BY 4.0)")
 notes(s, """
 [20 min, 1.5 min] Independent study (Biggel, Urban et al., Zurich/CDC). 294 isolates:
-97.3% near-identical to the hybrid reference. The outliers (red/purple) carry dnd
+97.3% near-identical to the hybrid reference. Shown: Salmonella (full figure with eight
+species in the appendix). The outliers (red/purple) carry dnd
 (phosphorothioate) or dpd (7-deazaguanine) systems — modifications that the basecaller
 was never trained on. Bottom: consensus quality drops exactly at the modified motif.
 alpaqa uses these quality dips to flag unreliable assemblies — no reference needed.
@@ -449,7 +476,8 @@ list: Mycobacterium abscessus, 22.5% — which leads to the next example.
 """)
 S["alpaqa"] = s
 
-s = new_from(O(18), "M. abscessus: a modification the basecaller never learned")
+s = new_from(O(18), "M. abscessus")
+set_title_runs(s, [("M. abscessus", True), (": a modification the basecaller never learned", False)])
 add_fig(s, C / "phd_mabs_plot.png", 0.3, 0.78, 3.4, 3.8)
 add_fig(s, C / "phd_pt_vs_methyl.png", 3.85, 0.78, 5.9, 2.3)
 add_text(s, ["Calls at GGCC change between basecaller models",
@@ -465,7 +493,6 @@ Mycobacterium abscessus she saw unstable
 calls at GGCC: they changed between Dorado models and between native and PCR DNA.
 After Lara Urban's talk it became clear: phosphorothioate, a sulfur instead of an oxygen
 in the backbone. Not in the training data, so the model mislabels it.
-Fix the title: italic M. abscessus in PowerPoint if wanted.
 """)
 S["mabs"] = s
 
@@ -531,10 +558,17 @@ s = O(23)
 remove_shapes(s)
 set_title(s, "From probabilistic calls to motifs, automated")
 add_fig(s, G / "fig_calls_to_motif.png", 0.3, 0.9, 6.3, 3.5)
-add_fig(s, ROOT / "figures/received/valentina-workflow.png", 6.75, 0.85, 3.0, 2.0)
-add_text(s, ["ont-methylation: Dorado → alignment → modkit → motifs",
-             ("Nextflow; proposed to nf-core", {"bold": True})],
-         6.8, 2.95, 2.95, 1.4, size=12, bullets=True, space=4)
+add_text(s, [("Three generic steps", {"bold": True, "size": 13, "color": ACCENT["III"]}),
+             "1  Classify each read: p ≥ τ",
+             "2  Aggregate per site: f = k / n",
+             "    (k of n reads modified)",
+             "3  Motifs: sequences with f ≈ 1",
+             ("Here τ = 0.7 (as in the figure)", {"size": 11, "color": GREY}),
+             ("High τ: fewer false calls, but fewer usable reads", {"size": 11, "color": GREY})],
+         6.8, 0.9, 2.95, 2.0, size=13, space=3)
+add_fig(s, ROOT / "figures/received/valentina-workflow.png", 6.8, 2.95, 2.95, 1.2)
+add_text(s, "Automated: ont-methylation (Nextflow)", 6.8, 4.17, 2.95, 0.3, size=10, color=GREY,
+         align=PP_ALIGN.CENTER)
 takeaway(s, "Choices matter: probability threshold, coverage, partially methylated sites.", "III")
 cite(s, "Schematic (toy data); threshold 0.7 as in Galeone et al. BMC Genomics 2025. Pipeline: github.com/rki-mf1/ont-methylation")
 notes(s, """
@@ -649,13 +683,11 @@ add_text(s, "content", 0.3, 2.0, 1.9, 0.25, size=10, color=GREY, align=PP_ALIGN.
 add_text(s, "style", 2.3, 2.0, 1.9, 0.25, size=10, color=GREY, align=PP_ALIGN.CENTER)
 add_text(s, "sequence", 0.3, 3.75, 1.9, 0.25, size=10, color=GREY, align=PP_ALIGN.CENTER)
 add_text(s, "genomic style", 2.3, 3.75, 1.9, 0.25, size=10, color=GREY, align=PP_ALIGN.CENTER)
-add_fig(s, K / "val_draft/image2.png", 4.5, 0.75, 2.6, 3.85)
-add_text(s, [("CNN on a DNA read", {"bold": True, "color": ACCENT["IV"]}),
-             "Feature maps F (filters × positions)",
-             ("Gram matrix G = F Fᵀ", {"bold": True}),
-             "Which features co-occur — not where",
-             "→ position-free “style” vector per read"],
-         7.25, TT, 2.5, TH, size=12, space=6)
+add_fig(s, G / "fig_gram_matrix.png", 4.45, 0.8, 5.3, 2.65)
+add_text(s, ["CNN filters scan the read: feature map F",
+             ("G sums over positions: which patterns co-occur, not where", {"bold": True}),
+             "Any read length → fixed-size “style” vector, alignment-free"],
+         4.55, 3.5, 5.2, 1.1, size=12, bullets=True, space=3)
 takeaway(s, "Style, not content: a learned fingerprint of a genome.", "IV")
 cite(s, "Yoshimura, Hamada, Augey, Akiyama, Sakakibara. Bioinform Adv 2021 (genomic style); architecture: Galeone et al., in prep.")
 notes(s, """
@@ -663,8 +695,9 @@ notes(s, """
 style transfer. A CNN separates what is drawn (content) from how (style). For DNA:
 the Gram matrix of the feature maps, G = F F^T, sums over positions, so it captures which
 patterns co-occur, independent of where. This gives a fixed-size style vector per read.
-Algorithmic point for the committee: Gram matrix = second-order statistics of learned
-features; alignment-free.
+Figure (toy data): read 2 has the same patterns at other positions and is longer, but
+its Gram matrix is identical. Algorithmic point: Gram matrix = second-order statistics of
+learned features; alignment-free. Architecture details in the appendix.
 """)
 S["style"] = s
 
@@ -745,11 +778,12 @@ S["host"] = s
 
 s = new_from(O(33), "Outlook: separating lineages by their methylation")
 add_fig(s, G / "fig_methyl_haplotyping.png", 0.3, 0.78, 6.4, 3.8)
-add_text(s, ["Mixed sample, near-identical sequence",
-             "Reads × motif sites, like haplotype phasing",
-             ("Re-use ideas from phasing algorithms (e.g. MethPhaser)", {"bold": True}),
-             "Co-existing lineages, plasmid–host links"],
-         6.9, TT, 2.85, TH, size=13, bullets=True, space=6)
+add_text(s, ["Reads × motif sites: 1 / 0 / missing",
+             ("Split reads into groups with few disagreements", {"bold": True}),
+             "The phasing problem (minimum error correction)",
+             "But: unknown number of lineages, uneven abundance",
+             ("Re-use ideas from phasing algorithms (e.g. MethPhaser)", {"bold": True})],
+         6.9, TT, 2.85, TH, size=12, bullets=True, space=5)
 takeaway(s, "Methylation as a second, fast-evolving genome for metagenomics.", "IV")
 cite(s, "Schematic (toy data). Cf. Fu et al. MethPhaser (2024); Beaulaurier et al. Nat Biotechnol 2018")
 notes(s, """
@@ -760,7 +794,9 @@ sites matrix is the same object as in haplotype phasing — so ideas from MethPh
 could carry over. Not directly: those methods assume a diploid genome (exactly two
 haplotypes); a metagenome has an unknown number of lineages at unknown abundances.
 Clustering reads by their methylation profile, as in the classification work, is already
-a simple form of this.
+a simple form of this. MEC in one sentence: flip as few matrix entries as possible so that
+the reads split into k groups that agree within each group (NP-hard; good heuristics and
+fixed-parameter algorithms exist). Applications: co-existing lineages, plasmid-host links.
 """)
 S["outlook"] = s
 
@@ -844,6 +880,30 @@ add_fig(s, K / "val_draft/image7.png", 5.45, 0.9, 4.3, 2.5)
 cite(s, "Galeone, Akiyama, Sakakibara, Hölzer, in preparation")
 S["app_results"] = s
 
+s = new_from(O(45), "Appendix: genomic-style network architecture")
+add_fig(s, K / "val_draft/image2.png", 0.3, 0.75, 9.4, 4.2)
+cite(s, "Galeone, Akiyama, Sakakibara, Hölzer, in preparation")
+S["app_arch"] = s
+
+s = new_from(O(45), "Appendix: assembly and polishing benchmark (full figures)")
+add_fig(s, P / "p4_assembly_bmc2025/img-005.png", 0.3, 0.75, 5.6, 4.2)
+add_fig(s, P / "p4_assembly_bmc2025/img-007.png", 6.05, 0.75, 3.7, 4.2)
+cite(s, "Thomas, …, Hölzer, Linde. BMC Genomics 2025, 26:783")
+S["app_assembly"] = s
+
+s = new_from(O(45), "Appendix: remaining errors and DNA modifications (full figures)")
+add_fig(s, C / "alpaqa_fig1.png", 0.3, 0.75, 5.9, 2.6)
+add_fig(s, P / "o_alpaqa_biorxiv2026/img-002.png", 0.3, 3.4, 5.9, 1.5)
+add_fig(s, ROOT / "figures/received/urban-supp3-dnd.png", 6.35, 0.75, 3.4, 4.2)
+cite(s, "Biggel, …, Urban. bioRxiv 2026, doi:10.64898/2026.03.20.713089, Fig. 1, 2, Suppl. Fig. S3 (CC BY 4.0)")
+S["app_alpaqa"] = s
+
+s = new_from(O(45), "Appendix: multicenter allele differences, all four species")
+add_fig(s, P / "p3_multicenter_jcm2024/img-004.png", 0.3, 0.75, 4.0, 1.0)
+add_fig(s, P / "p3_multicenter_jcm2024/img-007.png", 0.3, 1.8, 9.4, 3.15)
+cite(s, "Dabernig-Heinz, Lohde, Hölzer et al. J Clin Microbiol 2024, 62:e00628-24")
+S["app_jcm"] = s
+
 # remaining spare slides of Martin go to the appendix unchanged
 SPARE = [O(i) for i in (38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50)]
 
@@ -857,7 +917,8 @@ ORDER = ["title", "outbreaks", "mst", "technical", "promise",
 # contrib: habilitation rules ask for a general-interest talk, not an overview of own work;
 # kept as backup for the discussion (which may cover the written habilitation work)
 MOVED = ["contrib", "p2023", "rawdata", "pipeline", "repro", "unseen"]
-APPENDIX = ["app", "app_model", "app_graph", "app_eval", "app_results"] + MOVED
+APPENDIX = ["app", "app_model", "app_graph", "app_arch", "app_eval", "app_results",
+            "app_jcm", "app_assembly", "app_alpaqa"] + MOVED
 final = [S[k] for k in ORDER + APPENDIX] + SPARE
 
 # ---------------------------------------------------------------- timing in speaker notes

@@ -48,7 +48,7 @@ C_RED = "#C0392B"
 C_GREY = "#8A8F98"
 
 plt.rcParams.update({
-    "font.family": "Helvetica",
+    "font.family": ["Helvetica", "Arial Unicode MS", "DejaVu Sans"],
     "font.size": 13,
     "axes.spines.top": False,
     "axes.spines.right": False,
@@ -150,8 +150,8 @@ ax.axvspan(0.0, 0.05, color=C_GREEN, alpha=0.15, lw=0)
 ax.text(0.065, 0.55, "random read errors\n(1–5% per read)", ha="left", va="center",
         fontsize=11, color="#2E6B1A")
 ax.axvspan(0.35, 0.65, color=C_RED, alpha=0.10, lw=0)
-ax.text(0.36, 0.86, "systematic errors\n(e.g. modified motif)", ha="left",
-        va="bottom", fontsize=11, color=C_RED)
+ax.text(0.34, 0.93, "systematic errors →\n(e.g. modified motif)", ha="right",
+        va="center", fontsize=11, color=C_RED)
 
 ax.set_xlim(0, 1)
 ax.set_ylim(-0.02, 1.02)

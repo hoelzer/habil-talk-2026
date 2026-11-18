@@ -13,7 +13,7 @@ The slide deck itself is also assembled by a script from a hand-made PowerPoint 
 |---|---|---|
 | Consensus error rate → expected false cgMLST allele differences; majority-vote consensus | `scripts/sim_cgmlst_errors.py` | none |
 | cgMLST explainer (core genes → alleles → allele distances → tree) | `scripts/fig_cgmlst_scheme.py` | none |
-| Schematics: per-read modification calls → motif; separating lineages by methylation (toy data) | `scripts/fig_schematics.py` | none |
+| Schematics: per-read modification calls → motif; separating lineages by methylation; Gram matrix as a position-free representation (toy data) | `scripts/fig_schematics.py` | none |
 | Slide deck | `scripts/build_deck.py` | private (see below) |
 
 Generated figures are in `figures/generated/`.
@@ -49,6 +49,7 @@ The pipeline is documented for transparency:
 bash scripts/extract_paper_figs.sh               # figures from paper PDFs
 bash scripts/render_pptx.sh <deck.pptx> <outdir> 250   # macOS + Keynote: pptx → PDF → PNG
 .venv/bin/python scripts/crops.py                # crop figure regions from renders
+.venv/bin/python scripts/zooms.py                # zoom-ins on dense paper figures
 .venv/bin/python scripts/build_deck.py           # → build/2026-FU-Habil-Hoelzer-Talk_vXX.pptx
 ```
 
