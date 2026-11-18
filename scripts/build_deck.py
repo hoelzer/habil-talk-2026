@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v07"
+VERSION = "v08"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -318,15 +318,12 @@ remove_shapes(s)
 set_title(s, "Random errors average out, systematic errors do not")
 add_fig(s, G / "fig_sim_majority_vote.png", FL, 0.75, FW, 3.85)
 add_text(s, [("Consensus = majority vote", {"bold": True, "size": 13, "color": ACCENT["I"]}),
-             ("n reads cover a position;", {"size": 12}),
-             ("X ~ Bin(n, p) of them share a wrong base", {"size": 12}),
-             ("P(wrong) = P(X > n/2)", {"bold": True, "size": 15}),
-             ("", {"size": 4}),
-             "p small: P → 0 as n grows",
-             "p ≈ ½: a coin flip, for any n",
-             ("", {"size": 4}),
-             ("More coverage cannot fix systematic errors", {"bold": True})],
-         TL, TT, TW, TH, size=14, space=4)
+             "Random errors vanish with coverage",
+             "Same error in ~50% of reads: a coin flip",
+             "More coverage does not help",
+             ("", {"size": 6}),
+             ("Reads 99% accurate, genome can still be wrong", {"bold": True})],
+         TL, TT, TW, TH, size=14, space=5)
 takeaway(s, "Systematic errors decide whether typing is reproducible.", "I")
 cite(s, "Binomial majority vote; worst case: all erroneous reads agree on the same wrong base.")
 notes(s, """
@@ -778,12 +775,11 @@ S["host"] = s
 
 s = new_from(O(33), "Outlook: separating lineages by their methylation")
 add_fig(s, G / "fig_methyl_haplotyping.png", 0.3, 0.78, 6.4, 3.8)
-add_text(s, ["Reads × motif sites: 1 / 0 / missing",
-             ("Split reads into groups with few disagreements", {"bold": True}),
-             "The phasing problem (minimum error correction)",
-             "But: unknown number of lineages, uneven abundance",
-             ("Re-use ideas from phasing algorithms (e.g. MethPhaser)", {"bold": True})],
-         6.9, TT, 2.85, TH, size=12, bullets=True, space=5)
+add_text(s, ["Mixed sample, near-identical sequence",
+             "Reads × motif sites, like haplotype phasing",
+             ("Re-use ideas from phasing algorithms (e.g. MethPhaser)", {"bold": True}),
+             "Co-existing lineages, plasmid–host links"],
+         6.9, TT, 2.85, TH, size=13, bullets=True, space=6)
 takeaway(s, "Methylation as a second, fast-evolving genome for metagenomics.", "IV")
 cite(s, "Schematic (toy data). Cf. Fu et al. MethPhaser (2024); Beaulaurier et al. Nat Biotechnol 2018")
 notes(s, """
