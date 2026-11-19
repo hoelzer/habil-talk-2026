@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v11"
+VERSION = "v12"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -730,7 +730,7 @@ set_title(s, "Methylation separates strains that sequence cannot")
 add_fig(s, C / "kit_tsne_circled.png", FL, 0.75, 6.2, 3.85)
 add_text(s, [("Accuracy 0.66 → 0.80", {"bold": True}), "(CNN and k-mers)",
              ("", {"size": 6}),
-             ("R. pickettii strains", {"bold": True, "italic": True}),
+             ("R. pickettii strains", {"bold": True}),
              "F1 0.5 → 0.95",
              ("", {"size": 6}),
              "Top k-mers = known motifs",
@@ -1036,12 +1036,40 @@ for sl in final:
 
 # ---------------------------------------------------------------- global text fixes
 FIX = {"XXXXXXX YY, 2026": DATE, "Foodboren": "Foodborne", "epigentic": "epigenetic",
-       "lessens": "lessons", "abseccus": "abscessus"}
+       "lessens": "lessons", "abseccus": "abscessus", "≤10 ": "≤ 10 "}
+# species names in italics (v12): split runs so that only the name is italic
+SPECIES = re.compile(r"(K\. pneumoniae|K\. variicola|L\. monocytogenes|S\. aureus|E\. faecium|"
+                     r"E\. coli|M\. abscessus|R\. pickettii|B\. anthracis|C\. difficile|"
+                     r"Ralstonia|Salmonella|Klebsiella|Listeria|Mycobacterium|Brucella|Francisella)")
+
+
+def italicize_species(slide):
+    n_split = 0
+    for sh in slide.shapes:
+        if not sh.has_text_frame:
+            continue
+        for par in sh.text_frame.paragraphs:
+            for r in list(par.runs):
+                if r.font.italic or not SPECIES.search(r.text):
+                    continue
+                for part in SPECIES.split(r.text):
+                    if not part:
+                        continue
+                    new = copy.deepcopy(r._r)
+                    new.find(qn("a:t")).text = part
+                    rpr = new.get_or_add_rPr()
+                    if SPECIES.fullmatch(part):
+                        rpr.set("i", "1")
+                    r._r.addprevious(new)
+                r._r.getparent().remove(r._r)
+                n_split += 1
+    return n_split
 for n, sl in enumerate(prs.slides, 1):
     for t in sl._element.iter(qn("a:t")):
         if t.text:
             for a, b in FIX.items():
                 t.text = t.text.replace(a, b)
+    italicize_species(sl)
     for fld in sl._element.iter(qn("a:fld")):
         if fld.get("type") == "slidenum":
             t = fld.find(qn("a:t"))
