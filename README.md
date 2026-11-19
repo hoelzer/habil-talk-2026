@@ -14,6 +14,7 @@ The slide deck itself is also assembled by a script from a hand-made PowerPoint 
 | Consensus error rate → expected false cgMLST allele differences; majority-vote consensus | `scripts/sim_cgmlst_errors.py` | none |
 | cgMLST explainer (core genes → alleles → allele distances → tree) | `scripts/fig_cgmlst_scheme.py` | none |
 | Schematics: per-read modification calls → motif; separating lineages by methylation; Gram matrix as a position-free representation (toy data) | `scripts/fig_schematics.py` | none |
+| Speech-recognition analogy: opening figure and callback icon | `scripts/fig_analogy.py` | none |
 | Slide deck | `scripts/build_deck.py` | private (see below) |
 
 Generated figures are in `figures/generated/`.

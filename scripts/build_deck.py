@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v08"
+VERSION = "v09"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -900,10 +900,79 @@ add_fig(s, P / "p3_multicenter_jcm2024/img-007.png", 0.3, 1.8, 9.4, 3.15)
 cite(s, "Dabernig-Heinz, Lohde, Hölzer et al. J Clin Microbiol 2024, 62:e00628-24")
 S["app_jcm"] = s
 
+# ================================================================ ANALOGY (v09)
+# Speech-recognition analogy (Martin's idea, incoming/Habilitation_Speech_Recognition_Analogy.docx):
+# opening slide after the title, callbacks on basecalling, twist and outlook, closing quote.
+ICON = G / "fig_analogy_icon.png"
+
+
+def more_notes(slide, text):
+    old = slide.notes_slide.notes_text_frame.text
+    slide.notes_slide.notes_text_frame.text = old.rstrip() + "\n\n" + text.strip()
+
+
+s = new_from(O(2), "Are we losing information when we decode a signal?")
+add_fig(s, G / "fig_analogy_opening.png", 0.3, 0.78, 9.4, 3.8)
+takeaway(s, "The signal may contain more information than its transcript.", "INTRO")
+notes(s, """
+Imagine listening to a voice recording. It is noisy, so we use an AI model to transcribe
+the spoken words. Sometimes the model makes mistakes, and a single wrong word can change
+the meaning of a sentence: was the outbreak strain found in the kitchen or in the chicken?
+But the recording contains more than the transcript: it also tells us who is speaking —
+voice, pronunciation, intonation. Converting it into text loses this information.
+Nanopore sequencing poses a surprisingly similar computational problem: we translate an
+electrical signal into a DNA sequence, and this translation must be as accurate as possible
+when we compare bacterial genomes in outbreaks. But what if the signal also carries
+biological information that the sequence does not? (Then: two outbreak scenarios.)
+""")
+S["analogy"] = s
+
+sl = S["basecalling"]
+sl.shapes.add_picture(str(img(ICON)), Inches(6.55), Inches(0.24), Inches(0.8), Inches(0.25))
+add_text(sl, [("Speech recognition for DNA", {"bold": True}),
+              "(CTC training; Graves et al. 2006)"],
+         7.45, 0.17, 2.45, 0.45, size=9, color=GREY, space=0)
+more_notes(sl, """Analogy: basecalling is speech recognition for DNA — literally: modern basecallers
+are trained with connectionist temporal classification (CTC), developed for speech
+recognition (Graves et al. 2006); Chiron (2018) and Bonito/Dorado build on it.""")
+
+sl = S["twist"]
+sl.shapes.add_picture(str(img(ICON)), Inches(1.55), Inches(4.58), Inches(0.8), Inches(0.25))
+add_text(sl, "The transcript drops the voice; the recording keeps it.", 2.45, 4.52, 6.5, 0.35,
+         size=14, color=GREY, italic=True)
+more_notes(sl, """Analogy: the transcript drops the voice, the recording keeps it. Limit of the analogy (in case
+someone asks): a voice belongs to the speaker; methylation is chemistry on the DNA itself,
+set by the strain's methyltransferases, and it can switch on and off (phase variation).
+So it is a strong clue, but not a guaranteed strain fingerprint.""")
+
+sl = S["outlook"]
+sl.shapes.add_picture(str(img(ICON)), Inches(6.95), Inches(3.3), Inches(0.8), Inches(0.25))
+add_text(sl, "Like speaker diarization: who spoke when?", 6.95, 3.6, 2.8, 0.6, size=12,
+         color=GREY, italic=True)
+more_notes(sl, """Analogy: speaker diarization — "who spoke when" in a recording with several speakers —
+clusters segments by voice features. Separating lineages in a metagenome by methylation
+is essentially diarization of reads.""")
+
+sl = S["lessons"]
+add_text(sl, "Just as a voice recording contains more than the spoken words, nanopore signals "
+         "contain more than the DNA sequence.", 0.6, 3.55, 8.8, 0.6, size=14, color=GREY,
+         italic=True, align=PP_ALIGN.CENTER)
+more_notes(sl, """Close the circle with the analogy: just as a voice recording contains more than the spoken
+words, nanopore signals contain more than the DNA sequence.""")
+
+more_notes(S["sim2"], """Analogy (notes only): a speech model trained on standard speech keeps mishearing a dialect
+the same way — replaying the recording does not help. Same for modifications: more coverage
+does not fix a systematic error.""")
+more_notes(S["mabs"], """Analogy (notes only): a dialect the speech model never heard during training.""")
+more_notes(S["style"], """Analogy (notes only): speaker recognition. Statistics over a whole recording give one
+fixed-size voiceprint (x-vectors, Snyder et al. 2018), however long the recording —
+the same principle as the Gram matrix over a read.""")
+more_notes(S["strains"], """Analogy (notes only): words plus voice recognise the speaker better than words alone.""")
+
 # remaining spare slides of Martin go to the appendix unchanged
 SPARE = [O(i) for i in (38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50)]
 
-ORDER = ["title", "outbreaks", "mst", "technical", "promise",
+ORDER = ["title", "analogy", "outbreaks", "mst", "technical", "promise",
          "sec1", "howworks", "basecalling", "sim1", "sim2",
          "sec2", "p2024", "motifs", "assembly", "p2026", "alpaqa", "mabs", "twist",
          "sec3", "rm", "calls", "profiles", "ehec",
@@ -919,7 +988,7 @@ final = [S[k] for k in ORDER + APPENDIX] + SPARE
 
 # ---------------------------------------------------------------- timing in speaker notes
 # minutes per main slide; notes get "[start, duration]" automatically
-DUR = {"title": .5, "outbreaks": 1, "mst": 1.5, "technical": 1, "promise": 1.5,
+DUR = {"title": .5, "analogy": 1, "outbreaks": 1, "mst": 1.5, "technical": 1, "promise": 1.5,
        "sec1": .25, "howworks": 1.5, "basecalling": 1, "sim1": 1.5, "sim2": 1.5,
        "sec2": .25, "p2024": 1.5, "motifs": 1.5, "assembly": 1.5, "p2026": 1.5,
        "alpaqa": 1.5, "mabs": 1.5, "twist": .5,
