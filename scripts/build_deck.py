@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v09"
+VERSION = "v10"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -475,19 +475,22 @@ S["alpaqa"] = s
 
 s = new_from(O(18), "M. abscessus")
 set_title_runs(s, [("M. abscessus", True), (": a modification the basecaller never learned", False)])
-add_fig(s, C / "phd_mabs_plot.png", 0.3, 0.78, 3.4, 3.8)
-add_fig(s, C / "phd_pt_vs_methyl.png", 3.85, 0.78, 5.9, 2.3)
+add_fig(s, ROOT / "figures/received/Mabscessus-GGCC-plot.png", 0.3, 0.78, 3.75, 3.8)
+add_fig(s, Z / "zoom_pt_vs_methyl.png", 4.25, 0.78, 5.5, 2.3)
 add_text(s, ["Calls at GGCC change between basecaller models",
              ("Not methylation: phosphorothioate", {"bold": True}),
              "Sulfur in the DNA backbone, added by Dnd proteins",
              "Rare, so missing from training data"],
-         4.05, 3.15, 5.6, 1.45, size=13, bullets=True, space=3)
+         4.3, 3.15, 5.45, 1.45, size=13, bullets=True, space=3)
 takeaway(s, "What the model has not seen, it calls wrong — but the signal is there.", "II")
 cite(s, "Galeone et al., ongoing; with A. Lewin (RKI). Cf. Biggel et al. bioRxiv 2026")
 notes(s, """
 [21.5 min, 1.5 min] A concrete case from Valentina Galeone's PhD project: in
 Mycobacterium abscessus she saw unstable
 calls at GGCC: they changed between Dorado models and between native and PCR DNA.
+Plot (one locus in the WhiB gene): bottom = basecalling errors per position, up to ~25%
+at GGCC with native DNA (blue/green = two basecaller models), almost none with PCR DNA (red);
+top = 5mC calls, which do not explain the errors.
 After Lara Urban's talk it became clear: phosphorothioate, a sulfur instead of an oxygen
 in the backbone. Not in the training data, so the model mislabels it.
 """)
@@ -888,7 +891,7 @@ cite(s, "Thomas, …, Hölzer, Linde. BMC Genomics 2025, 26:783")
 S["app_assembly"] = s
 
 s = new_from(O(45), "Appendix: remaining errors and DNA modifications (full figures)")
-add_fig(s, C / "alpaqa_fig1.png", 0.3, 0.75, 5.9, 2.6)
+add_fig(s, ROOT / "figures/received/alpaqa-fig1_4200.png", 0.3, 0.75, 5.9, 2.6)
 add_fig(s, P / "o_alpaqa_biorxiv2026/img-002.png", 0.3, 3.4, 5.9, 1.5)
 add_fig(s, ROOT / "figures/received/urban-supp3-dnd.png", 6.35, 0.75, 3.4, 4.2)
 cite(s, "Biggel, …, Urban. bioRxiv 2026, doi:10.64898/2026.03.20.713089, Fig. 1, 2, Suppl. Fig. S3 (CC BY 4.0)")
@@ -896,7 +899,7 @@ S["app_alpaqa"] = s
 
 s = new_from(O(45), "Appendix: multicenter allele differences, all four species")
 add_fig(s, P / "p3_multicenter_jcm2024/img-004.png", 0.3, 0.75, 4.0, 1.0)
-add_fig(s, P / "p3_multicenter_jcm2024/img-007.png", 0.3, 1.8, 9.4, 3.15)
+add_fig(s, ROOT / "figures/received/multi-center-study-fig3.tif", 0.3, 1.8, 9.4, 3.15)
 cite(s, "Dabernig-Heinz, Lohde, Hölzer et al. J Clin Microbiol 2024, 62:e00628-24")
 S["app_jcm"] = s
 
