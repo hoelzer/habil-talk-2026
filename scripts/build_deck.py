@@ -24,7 +24,7 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-VERSION = "v10"
+VERSION = "v11"
 REPO = "github.com/hoelzer/habil-talk-2026"   # public repo, created 2026-11-18
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "2026-FU-Habil-Hoelzer-Talk.pptx"
@@ -603,8 +603,10 @@ S["pipeline"] = s
 s = O(25)
 remove_shapes(s)
 set_title(s, "Distinct and reproducible methylation profiles")
-add_fig(s, C / "phd_methyl_table.png", 0.3, 0.78, 5.9, 3.8)
-add_fig(s, P / "p5_methylome_bmc2025/img-003.png", 6.35, 0.78, 3.4, 3.8)
+add_fig(s, ROOT / "figures/received/motif-table.png", 0.3, 0.8, 5.7, 3.75)
+add_fig(s, P / "p5_methylome_bmc2025/img-003.png", 6.2, 0.8, 3.55, 3.0)
+add_text(s, "Methylated fraction per motif in three labs", 6.2, 3.85, 3.55, 0.3, size=10,
+         color=GREY, align=PP_ALIGN.CENTER)
 takeaway(s, "Each strain has its own motif set — and three labs agree on it.", "III")
 cite(s, "Galeone, Dabernig-Heinz, Lohde, Brandt, Kohler, Wagner, Hölzer. BMC Genomics 2025, 26:394 (table: V. Galeone)")
 notes(s, """
