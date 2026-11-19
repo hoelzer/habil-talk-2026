@@ -15,6 +15,7 @@ The slide deck itself is also assembled by a script from a hand-made PowerPoint 
 | cgMLST explainer (core genes → alleles → allele distances → tree) | `scripts/fig_cgmlst_scheme.py` | none |
 | Schematics: per-read modification calls → motif; separating lineages by methylation; Gram matrix as a position-free representation (toy data) | `scripts/fig_schematics.py` | none |
 | Speech-recognition analogy: opening figure and callback icon | `scripts/fig_analogy.py` | none |
+| Primer for a general audience: genome → reads → assembly → compare | `scripts/fig_primer.py` | none |
 | Slide deck | `scripts/build_deck.py` | private (see below) |
 
 Generated figures are in `figures/generated/`.
