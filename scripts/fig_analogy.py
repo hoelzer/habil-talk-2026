@@ -137,6 +137,8 @@ ax.add_patch(FancyArrowPatch((0.17, Y2 + 0.13), (0.87, Y2 + 0.07), connectionsty
                              arrowstyle="-|>", mutation_scale=14, color=C_ORANGE, lw=1.4,
                              ls="--", transform=ax.transAxes))
 fig.savefig(OUT / "fig_analogy_opening.png", facecolor="white", bbox_inches="tight")
+with plt.rc_context({"svg.fonttype": "none"}):       # keep text editable in the SVG
+    fig.savefig(OUT / "fig_analogy_opening.svg", facecolor="white", bbox_inches="tight")
 plt.close(fig)
 
 # ---------------- icon: waveform -> text
